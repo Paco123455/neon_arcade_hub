@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Arcade Hub - 40 Cyber Games</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                    },
+                    colors: {
+                        cyberpunk: {
+                            bg: '#05050a',
+                            panel: '#0c0c16',
+                            border: '#1f1f38',
+                            cyan: '#00f0ff',
+                            pink: '#ff0055',
+                            yellow: '#fcee0a',
+                            purple: '#bd00ff',
+                            green: '#00ff66'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(0, 240, 255, 0.4)',
+                        'neon-pink': '0 0 15px rgba(255, 0, 85, 0.4)',
+                        'neon-yellow': '0 0 15px rgba(252, 238, 10, 0.4)',
+                        'neon-green': '0 0 15px rgba(0, 255, 102, 0.4)',
+                        'neon-purple': '0 0 15px rgba(189, 0, 255, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #05050a;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        .title-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .cyber-grid {
+            background-size: 30px 30px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05050a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f1f38;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+        .scanlines {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-cyberpunk-bg min-h-screen cyber-grid relative">
+    <div class="absolute inset-0 scanlines z-40 pointer-events-none fixed"></div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-6 relative z-10 max-w-7xl">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-cyberpunk-border pb-6 gap-4">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-cyberpunk-cyan to-cyberpunk-pink rounded-xl flex items-center justify-center shadow-neon-cyan animate-pulse">
+                    <i class="fa-solid fa-gamepad text-2xl text-cyberpunk-bg"></i>
+                </div>
+                <div>
+                    <h1 class="title-font text-3xl md:text-4xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyberpunk-cyan via-cyberpunk-pink to-cyberpunk-yellow">
+                        NEON ARCADE HUB
+                    </h1>
+                    <p class="text-sm text-cyberpunk-cyan/70 tracking-widest uppercase">40 Ultimativi Cyber Giochi v2.0</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="bg-cyberpunk-panel border border-cyberpunk-border px-4 py-2 rounded-xl flex items-center gap-3 shadow-inner">
+                    <i class="fa-solid fa-trophy text-cyberpunk-yellow"></i>
+                    <div>
+                        <div class="text-xs text-gray-400">Punti Totali Hub</div>
+                        <div id="total-score" class="title-font font-bold text-cyberpunk-yellow text-lg">0</div>
+                    </div>
+                </div>
+                <button onclick="toggleAudio()" id="audio-btn" class="bg-cyberpunk-panel border border-cyberpunk-border hover:border-cyberpunk-cyan p-3 rounded-xl transition text-cyberpunk-cyan shadow-neon-cyan flex items-center justify-center">
+                    <i id="audio-icon" class="fa-solid fa-volume-high text-xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Category Filters -->
+        <nav class="flex flex-wrap gap-2 mb-8 justify-center md:justify-start">
+            <button onclick="filterGames('all')" class="filter-btn active-filter px-5 py-2.5 rounded-xl title-font text-sm font-semibold tracking-wider transition bg-cyberpunk-cyan text-cyberpunk-bg shadow-neon-cyan">Tutti (40)</button>
+            <button onclick="filterGames('arcade')" class="filter-btn px-5 py-2.5 rounded-xl title-font text-sm font-semibold tracking-wider transition bg-cyberpunk-panel border border-cyberpunk-border text-gray-300 hover:border-cyberpunk-pink hover:text-cyberpunk-pink">Arcade</button>
+            <button onclick="filterGames('puzzle')" class="filter-btn px-5 py-2.5 rounded-xl title-font text-sm font-semibold tracking-wider transition bg-cyberpunk-panel border border-cyberpunk-border text-gray-300 hover:border-cyberpunk-yellow hover:text-cyberpunk-yellow">Puzzle</button>
+            <button onclick="filterGames('reaction')" class="filter-btn px-5 py-2.5 rounded-xl title-font text-sm font-semibold tracking-wider transition bg-cyberpunk-panel border border-cyberpunk-border text-gray-300 hover:border-cyberpunk-green hover:text-cyberpunk-green">Reazione & Azione</button>
+        </nav>
+
+        <!-- Games Grid -->
+        <main id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+            <!-- Game cards injected dynamically via script -->
+        </main>
+    </div>
+
+    <!-- Game Modal Container -->
+    <div id="game-modal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-cyberpunk-panel border-2 border-cyberpunk-cyan rounded-2xl w-full max-w-4xl max-h-[96vh] flex flex-col shadow-neon-cyan overflow-hidden relative">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center px-6 py-4 border-b border-cyberpunk-border bg-cyberpunk-bg/80">
+                <div class="flex items-center gap-3">
+                    <span id="modal-icon" class="text-2xl text-cyberpunk-cyan"></span>
+                    <h2 id="modal-title" class="title-font text-xl font-bold tracking-wider text-cyberpunk-cyan">Titolo Gioco</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm font-semibold bg-cyberpunk-border/50 px-3 py-1 rounded-lg">
+                        HighScore: <span id="modal-highscore" class="text-cyberpunk-yellow">0</span>
+                    </div>
+                    <button onclick="closeGameModal()" class="w-10 h-10 rounded-xl bg-cyberpunk-border/40 hover:bg-cyberpunk-pink hover:text-white transition flex items-center justify-center text-gray-300">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body / Canvas & Interactive Container -->
+            <div id="modal-body" class="flex-1 p-4 flex flex-col items-center justify-center relative overflow-y-auto bg-black/40 min-h-[420px]">
+                <!-- Game canvas or UI injected here -->
+            </div>
+
+            <!-- Modal Footer Controls / Help -->
+            <div id="modal-footer" class="px-6 py-3 border-t border-cyberpunk-border bg-cyberpunk-bg/80 flex flex-wrap justify-between items-center gap-3 text-xs text-gray-400">
+                <div id="modal-instructions" class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-cyberpunk-cyan"></i> Usa i tasti freccia o i controlli touch su schermo.
+                </div>
+                <div class="flex gap-2">
+                    <button id="modal-restart-btn" onclick="restartCurrentGame()" class="px-4 py-2 bg-cyberpunk-cyan/20 border border-cyberpunk-cyan text-cyberpunk-cyan hover:bg-cyberpunk-cyan hover:text-cyberpunk-bg rounded-xl title-font text-xs font-bold transition">Riavvia</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SYNTHESIZED WEB AUDIO API ---
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'beep') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'hit') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (type === 'score') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(880, now + 0.08); // A5
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'gameover') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.linearRampToValueAtTime(80, now + 0.5);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('audio-icon');
+            if (soundEnabled) {
+                btn.className = 'fa-solid fa-volume-high text-xl';
+                playSound('score');
+            } else {
+                btn.className = 'fa-solid fa-volume-xmark text-xl';
+            }
+        }
+
+        // --- GAME DATABASE (40 GAMES) ---
+        const gamesData = [
+            { id: 1, name: "Tetris", cat: "puzzle", icon: "fa-cubes", color: "text-cyberpunk-cyan", desc: "Il classico puzzle a blocchi geometrici in stile neon." },
+            { id: 2, name: "Memory Match", cat: "puzzle", icon: "fa-brain", color: "text-cyberpunk-pink", desc: "Trova le coppie di simboli cibernetici nascosti." },
+            { id: 3, name: "Snake", cat: "arcade", icon: "fa-worm", color: "text-cyberpunk-green", desc: "Guida il serpente di luce e mangia i data-node." },
+            { id: 4, name: "Space Shooter", cat: "arcade", icon: "fa-rocket", color: "text-cyberpunk-yellow", desc: "Difendi la galassia dai droni invasori." },
+            { id: 5, name: "Cyber Pong", cat: "arcade", icon: "fa-table-tennis-paddle-ball", color: "text-cyberpunk-cyan", desc: "Sfida il computer in un match di tennis digitale." },
+            { id: 6, name: "2048", cat: "puzzle", icon: "fa-calculator", color: "text-cyberpunk-purple", desc: "Unisci i blocchi numerici fino a raggiungere il 2048." },
+            { id: 7, name: "Flappy Cyber", cat: "arcade", icon: "fa-plane-up", color: "text-cyberpunk-pink", desc: "Fai volare il drone tra i pilastri al plasma." },
+            { id: 8, name: "Brick Breaker", cat: "arcade", icon: "fa-bowling-ball", color: "text-cyberpunk-yellow", desc: "Distruggi il muro di firewall con la pallina energetica." },
+            { id: 9, name: "Simon Cyber", cat: "puzzle", icon: "fa-compact-disc", color: "text-cyberpunk-green", desc: "Memorizza e ripeti la sequenza di colori al neon." },
+            { id: 10, name: "Cyber Runner", cat: "arcade", icon: "fa-person-running", color: "text-cyberpunk-cyan", desc: "Salta gli ostacoli energetici lungo la corsia." },
+            { id: 11, name: "Minesweeper", cat: "puzzle", icon: "fa-bomb", color: "text-cyberpunk-pink", desc: "Evita le mine cibernetiche nel grid di dati." },
+            { id: 12, name: "Cyber Whack", cat: "reaction", icon: "fa-hammer", color: "text-cyberpunk-yellow", desc: "Colpisci i virus informatici prima che scompaiano." },
+            { id: 13, name: "Neon Tris", cat: "puzzle", icon: "fa-hashtag", color: "text-cyberpunk-purple", desc: "Il classico tris 3x3 in chiave futuristica." },
+            { id: 14, name: "Cyber Match 3", cat: "puzzle", icon: "fa-gem", color: "text-cyberpunk-green", desc: "Allinea tre o più cristalli dati uguali." },
+            { id: 15, name: "Color Switch", cat: "reaction", icon: "fa-palette", color: "text-cyberpunk-cyan", desc: "Abbina il colore della sfera agli ostacoli rotanti." },
+            { id: 16, name: "Fast Math", cat: "puzzle", icon: "fa-square-root-variable", color: "text-cyberpunk-pink", desc: "Risolvi operazioni lampo prima dello scadere del tempo." },
+            { id: 17, name: "Neon Flipper", cat: "arcade", icon: "fa-bolt", color: "text-cyberpunk-yellow", desc: "Mantieni la sfera in gioco con le levette magnetiche." },
+            { id: 18, name: "Cyber Road", cat: "arcade", icon: "fa-frog", color: "text-cyberpunk-green", desc: "Attraversa l'autostrada trafficata di dati." },
+            { id: 19, name: "Cyber Impiccato", cat: "puzzle", icon: "fa-font", color: "text-cyberpunk-purple", desc: "Indovina la parola chiave prima del sovraccarico." },
+            { id: 20, name: "Cyber Clicker", cat: "reaction", icon: "fa-hand-pointer", color: "text-cyberpunk-cyan", desc: "Genera crediti cliccando sul nucleo centrale." },
+            { id: 21, name: "Cyber Pac", cat: "arcade", icon: "fa-ghost", color: "text-cyberpunk-yellow", desc: "Mangia i data-bit evitando i guardiani di rete." },
+            { id: 22, name: "Cyber Mines", cat: "arcade", icon: "fa-jet-fighter", color: "text-cyberpunk-pink", desc: "Schiva asteroidi e detriti spaziali in movimento." },
+            { id: 23, name: "Tower Stack", cat: "arcade", icon: "fa-tower-broadcast", color: "text-cyberpunk-cyan", desc: "Impila i blocchi oscillanti per costruire la torre." },
+            { id: 24, name: "Neon Solitaire", cat: "puzzle", icon: "fa-clone", color: "text-cyberpunk-green", desc: "Ordina le carte numerate nel terminale." },
+            { id: 25, name: "Cyber Slot", cat: "arcade", icon: "fa-slot-machine", color: "text-cyberpunk-purple", desc: "Tenta la fortuna con la slot machine al neon." },
+            { id: 26, name: "Word Scramble", cat: "puzzle", icon: "fa-shuffle", color: "text-cyberpunk-yellow", desc: "Riordina le lettere cibernetiche nel minor tempo." },
+            { id: 27, name: "Color Flood", cat: "puzzle", icon: "fa-fill-drip", color: "text-cyberpunk-pink", desc: "Inonda la griglia di colori partendo dall'angolo." },
+            { id: 28, name: "Cyber Defender", cat: "arcade", icon: "fa-shield-halved", color: "text-cyberpunk-cyan", desc: "Elimina le ondate nemiche in arrivo dall'alto." },
+            { id: 29, name: "Tris 4x4", cat: "puzzle", icon: "fa-border-all", color: "text-cyberpunk-green", desc: "Tris avanzato su griglia 4x4, allinea 4 simboli." },
+            { id: 30, name: "Reaction Timer", cat: "reaction", icon: "fa-stopwatch", color: "text-cyberpunk-yellow", desc: "Testa i tuoi riflessi al millisecondo esatto." },
+            { id: 31, name: "Catch the Coin", cat: "arcade", icon: "fa-coins", color: "text-cyberpunk-purple", desc: "Raccogli i crediti dorati prima che tocchino il suolo." },
+            { id: 32, name: "Snake Xtreme", cat: "arcade", icon: "fa-otter", color: "text-cyberpunk-pink", desc: "Snake con barriere e ostacoli interni casuali." },
+            { id: 33, name: "Neon Maze", cat: "puzzle", icon: "fa-map", color: "text-cyberpunk-cyan", desc: "Trova l'uscita nel labirinto cibernetico buio." },
+            { id: 34, name: "Lucky Roll", cat: "arcade", icon: "fa-dice", color: "text-cyberpunk-green", desc: "Lancia i dadi quantistici e totalizza il punteggio." },
+            { id: 35, name: "Cyber Quiz", cat: "puzzle", icon: "fa-circle-question", color: "text-cyberpunk-yellow", desc: "Rispondi correttamente alle domande tech e cyberpunk." },
+            { id: 36, name: "Breakout Pro", cat: "arcade", icon: "fa-fire", color: "text-cyberpunk-purple", desc: "Brick breaker potenziato con velocità incrementale." },
+            { id: 37, name: "Neon Sudoku", cat: "puzzle", icon: "fa-table-cells", color: "text-cyberpunk-pink", desc: "Sudoku rapido 4x4 con cifre o simboli al neon." },
+            { id: 38, name: "Beatmaker", cat: "arcade", icon: "fa-music", color: "text-cyberpunk-cyan", desc: "Sequenziatore musicale interattivo con pad elettronici." },
+            { id: 39, name: "Laser Deflector", cat: "puzzle", icon: "fa-laser-pointer", color: "text-cyberpunk-green", desc: "Posiziona gli specchi per guidare il raggio laser." },
+            { id: 40, name: "Clicker Battle", cat: "reaction", icon: "fa-gauge-high", color: "text-cyberpunk-yellow", desc: "Raffica di click nel tempo limite di 10 secondi." }
+        ];
+
+        let currentActiveGame = null;
+        let currentGameInterval = null;
+        let currentGameKeyHandler = null;
+        let highScores = JSON.parse(localStorage.getItem('neon_hub_scores') || '{}');
+        let totalHubScore = parseInt(localStorage.getItem('neon_hub_total') || '0');
+
+        document.getElementById('total-score').innerText = totalHubScore;
+
+        // Render Game Cards
+        function renderGames(filter = 'all') {
+            const grid = document.getElementById('games-grid');
+            grid.innerHTML = '';
+
+            const filtered = filter === 'all' ? gamesData : gamesData.filter(g => g.cat === filter);
+
+            filtered.forEach(game => {
+                const hs = highScores[game.id] || 0;
+                const card = document.createElement('div');
+                card.className = "bg-cyberpunk-panel border border-cyberpunk-border hover:border-cyberpunk-cyan rounded-2xl p-5 flex flex-col justify-between transition transform hover:-translate-y-1 shadow-lg group relative overflow-hidden";
+                card.innerHTML = `
+                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-cyberpunk-cyan/5 rounded-full blur-xl group-hover:bg-cyberpunk-cyan/20 transition"></div>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyberpunk-bg border border-cyberpunk-border flex items-center justify-center ${game.color} text-2xl group-hover:scale-110 transition">
+                                <i class="fa-solid ${game.icon}"></i>
+                            </div>
+                            <span class="text-xs uppercase tracking-widest px-2.5 py-1 rounded-md bg-cyberpunk-border/50 text-gray-400 title-font">${game.cat}</span>
+                        </div>
+                        <h3 class="title-font text-lg font-bold text-white mb-2 group-hover:text-cyberpunk-cyan transition">${game.id}. ${game.name}</h3>
+                        <p class="text-xs text-gray-400 mb-4 line-clamp-2">${game.desc}</p>
+                    </div>
+                    <div class="pt-4 border-t border-cyberpunk-border/60 flex items-center justify-between">
+                        <span class="text-xs text-gray-400">High: <strong class="text-cyberpunk-yellow">${hs}</strong></span>
+                        <button onclick="openGame(${game.id})" class="px-4 py-2 bg-cyberpunk-cyan/10 hover:bg-cyberpunk-cyan text-cyberpunk-cyan hover:text-cyberpunk-bg border border-cyberpunk-cyan/40 hover:border-cyberpunk-cyan rounded-xl title-font text-xs font-bold transition shadow-neon-cyan">
+                            PLAY
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterGames(cat) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn px-5 py-2.5 rounded-xl title-font text-sm font-semibold tracking-wider transition bg-cyberpunk-panel border border-cyberpunk-border text-gray-300 hover:border-cyberpunk-cyan hover:text-cyberpunk-cyan";
+            });
+            event.currentTarget.className = "filter-btn px-5 py-2.5 rounded-xl title-font text-sm font-semibold tracking-wider transition bg-cyberpunk-cyan text-cyberpunk-bg shadow-neon-cyan";
+            renderGames(cat);
+        }
+
+        renderGames();
+
+        // --- STREAMING_CHUNK:Game Modal Controller & Cleanup ---
+        function openGame(id) {
+            playSound('click');
+            const game = gamesData.find(g => g.id === id);
+            currentActiveGame = game;
+            
+            document.getElementById('modal-title').innerText = `${game.id}. ${game.name}`;
+            document.getElementById('modal-icon').className = `fa-solid ${game.icon} ${game.color}`;
+            document.getElementById('modal-highscore').innerText = highScores[game.id] || 0;
+            
+            document.getElementById('game-modal').classList.remove('hidden');
+            
+            setupGameInstance(id);
+        }
+
+        function closeGameModal() {
+            playSound('click');
+            if (currentGameInterval) clearInterval(currentGameInterval);
+            if (currentGameKeyHandler) window.removeEventListener('keydown', currentGameKeyHandler);
+            document.getElementById('game-modal').classList.add('hidden');
+            document.getElementById('modal-body').innerHTML = '';
+            currentActiveGame = null;
+        }
+
+        function restartCurrentGame() {
+            if (currentActiveGame) {
+                openGame(currentActiveGame.id);
+            }
+        }
+
+        function saveScore(gameId, score) {
+            const currentHS = highScores[gameId] || 0;
+            if (score > currentHS) {
+                highScores[gameId] = score;
+                localStorage.setItem('neon_hub_scores', JSON.stringify(highScores));
+                document.getElementById('modal-highscore').innerText = score;
+                playSound('score');
+            }
+            // Update total hub score
+            let total = Object.values(highScores).reduce((a, b) => a + b, 0);
+            totalHubScore = total;
+            localStorage.setItem('neon_hub_total', total);
+            document.getElementById('total-score').innerText = total;
+            renderGames();
+        }
+
+        // --- STREAMING_CHUNK:Implementing All 40 Games Logic ---
+        function setupGameInstance(id) {
+            if (currentGameInterval) clearInterval(currentGameInterval);
+            if (currentGameKeyHandler) window.removeEventListener('keydown', currentGameKeyHandler);
+            const body = document.getElementById('modal-body');
+            body.innerHTML = '';
+
+            switch(id) {
+                case 1: initTetris(body); break;
+                case 2: initMemoryMatch(body); break;
+                case 3: initSnake(body); break;
+                case 4: initSpaceShooter(body); break;
+                case 5: initCyberPong(body); break;
+                case 6: init2048(body); break;
+                case 7: initFlappyCyber(body); break;
+                case 8: initBrickBreaker(body); break;
+                case 9: initSimonCyber(body); break;
+                case 10: initCyberRunner(body); break;
+                case 11: initMinesweeper(body); break;
+                case 12: initCyberWhack(body); break;
+                case 13: initNeonTris(body); break;
+                case 14: initCyberMatch3(body); break;
+                case 15: initColorSwitch(body); break;
+                case 16: initFastMath(body); break;
+                case 17: initNeonFlipper(body); break;
+                case 18: initCyberRoad(body); break;
+                case 19: initCyberImpiccato(body); break;
+                case 20: initCyberClicker(body); break;
+                case 21: initCyberPac(body); break;
+                case 22: initCyberMines(body); break;
+                case 23: initTowerStack(body); break;
+                case 24: initNeonSolitaire(body); break;
+                case 25: initCyberSlot(body); break;
+                case 26: initWordScramble(body); break;
+                case 27: initColorFlood(body); break;
+                case 28: initCyberDefender(body); break;
+                case 29: initTris4x4(body); break;
+                case 30: initReactionTimer(body); break;
+                case 31: initCatchTheCoin(body); break;
+                case 32: initSnakeXtreme(body); break;
+                case 33: initNeonMaze(body); break;
+                case 34: initLuckyRoll(body); break;
+                case 35: initCyberQuiz(body); break;
+                case 36: initBreakoutPro(body); break;
+                case 37: initNeonSudoku(body); break;
+                case 38: initBeatmaker(body); break;
+                case 39: initLaserDeflector(body); break;
+                case 40: initClickerBattle(body); break;
+            }
+        }
+
+        // --- GAME 1: TETRIS ---
+        function initTetris(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-2 title-font">Punteggio: <span id="tetris-score">0</span></div>
+                    <canvas id="tetris-canvas" width="200" height="400" class="border-2 border-cyberpunk-cyan bg-black rounded-lg shadow-neon-cyan"></canvas>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="tetrisMove(-1)" class="px-4 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="tetrisRotate()" class="px-4 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-rotate"></i></button>
+                        <button onclick="tetrisMove(1)" class="px-4 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-right"></i></button>
+                        <button onclick="tetrisDrop()" class="px-4 py-2 bg-cyberpunk-cyan text-black rounded font-bold"><i class="fa-solid fa-arrow-down"></i></button>
+                    </div>
+                </div>
+            `;
+            const canvas = document.getElementById('tetris-canvas');
+            const ctx = canvas.getContext('2d');
+            const ROWS = 20, COLS = 10, BLOCK = 20;
+            let board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+            let score = 0;
+            let colors = ['', '#00f0ff', '#ff0055', '#fcee0a', '#bd00ff', '#00ff66', '#ff8800', '#0088ff'];
+            const shapes = [
+                [[1,1,1,1]], // I
+                [[1,1],[1,1]], // O
+                [[0,1,0],[1,1,1]], // T
+                [[1,0,0],[1,1,1]], // L
+                [[0,0,1],[1,1,1]], // J
+                [[0,1,1],[1,1,0]], // S
+                [[1,1,0],[0,1,1]]  // Z
+            ];
+            let currentPiece = null;
+            let currentX = 3, currentY = 0, currentColor = 1;
+
+            function newPiece() {
+                const idx = Math.floor(Math.random() * shapes.length);
+                currentPiece = shapes[idx];
+                currentColor = idx + 1;
+                currentX = Math.floor(COLS / 2) - Math.floor(currentPiece[0].length / 2);
+                currentY = 0;
+                if (checkCollision(0, 0, currentPiece)) {
+                    gameOverTetris();
+                }
+            }
+
+            function checkCollision(dx, dy, piece) {
+                for (let r = 0; r < piece.length; r++) {
+                    for (let c = 0; c < piece[r].length; c++) {
+                        if (piece[r][c]) {
+                            let nx = currentX + c + dx;
+                            let ny = currentY + r + dy;
+                            if (nx < 0 || nx >= COLS || ny >= ROWS) return true;
+                            if (ny >= 0 && board[ny][nx]) return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function merge() {
+                for (let r = 0; r < currentPiece.length; r++) {
+                    for (let c = 0; c < currentPiece[r].length; c++) {
+                        if (currentPiece[r][c]) {
+                            if (currentY + r >= 0) board[currentY + r][currentX + c] = currentColor;
+                        }
+                    }
+                }
+            }
+
+            function clearLines() {
+                let lines = 0;
+                for (let r = ROWS - 1; r >= 0; r--) {
+                    if (board[r].every(cell => cell > 0)) {
+                        board.splice(r, 1);
+                        board.unshift(Array(COLS).fill(0));
+                        lines++;
+                        r++;
+                    }
+                }
+                if (lines > 0) {
+                    score += lines * 100 * lines;
+                    document.getElementById('tetris-score').innerText = score;
+                    saveScore(1, score);
+                    playSound('score');
+                }
+            }
+
+            window.tetrisMove = (dir) => {
+                if (!currentPiece) return;
+                if (!checkCollision(dir, 0, currentPiece)) {
+                    currentX += dir;
+                    draw();
+                }
+            };
+
+            window.tetrisDrop = () => {
+                if (!currentPiece) return;
+                if (!checkCollision(0, 1, currentPiece)) {
+                    currentY++;
+                } else {
+                    merge();
+                    clearLines();
+                    newPiece();
+                }
+                draw();
+            };
+
+            window.tetrisRotate = () => {
+                if (!currentPiece) return;
+                const rotated = currentPiece[0].map((_, index) => currentPiece.map(row => row[index]).reverse());
+                if (!checkCollision(0, 0, rotated)) {
+                    currentPiece = rotated;
+                    draw();
+                    playSound('click');
+                }
+            };
+
+            function gameOverTetris() {
+                clearInterval(currentGameInterval);
+                currentGameInterval = null;
+                playSound('gameover');
+                ctx.fillStyle = "rgba(0,0,0,0.8)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ff0055";
+                ctx.font = "bold 18px Orbitron";
+                ctx.textAlign = "center";
+                ctx.fillText("GAME OVER", canvas.width/2, canvas.height/2);
+            }
+
+            function draw() {
+                ctx.fillStyle = "#05050a";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw board
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        if (board[r][c]) {
+                            ctx.fillStyle = colors[board[r][c]];
+                            ctx.fillRect(c * BLOCK, r * BLOCK, BLOCK - 1, BLOCK - 1);
+                        }
+                    }
+                }
+                // Draw current piece
+                if (currentPiece) {
+                    ctx.fillStyle = colors[currentColor];
+                    for (let r = 0; r < currentPiece.length; r++) {
+                        for (let c = 0; c < currentPiece[r].length; c++) {
+                            if (currentPiece[r][c]) {
+                                ctx.fillRect((currentX + c) * BLOCK, (currentY + r) * BLOCK, BLOCK - 1, BLOCK - 1);
+                            }
+                        }
+                    }
+                }
+            }
+
+            newPiece();
+            draw();
+            currentGameInterval = setInterval(window.tetrisDrop, 500);
+            currentGameKeyHandler = (e) => {
+                if (e.key === 'ArrowLeft') tetrisMove(-1);
+                if (e.key === 'ArrowRight') tetrisMove(1);
+                if (e.key === 'ArrowDown') tetrisDrop();
+                if (e.key === 'ArrowUp') tetrisRotate();
+            };
+            window.addEventListener('keydown', currentGameKeyHandler);
+        }
+
+        // --- GAME 2: MEMORY MATCH ---
+        function initMemoryMatch(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-pink font-bold mb-4 title-font">Tentativi: <span id="mem-moves">0</span></div>
+                    <div id="mem-grid" class="grid grid-cols-4 gap-3 max-w-xs"></div>
+                </div>
+            `;
+            const symbols = ['fa-bolt', 'fa-shield', 'fa-microchip', 'fa-brain', 'fa-code', 'fa-rocket', 'fa-fire', 'fa-ghost'];
+            let cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+            let flipped = [], matched = 0, moves = 0;
+            const grid = document.getElementById('mem-grid');
+
+            cards.forEach((sym, idx) => {
+                const card = document.createElement('div');
+                card.className = "w-14 h-14 bg-cyberpunk-bg border border-cyberpunk-border rounded-xl flex items-center justify-center text-xl text-transparent cursor-pointer hover:border-cyberpunk-pink transition";
+                card.dataset.symbol = sym;
+                card.dataset.index = idx;
+                card.innerHTML = `<i class="fa-solid ${sym}"></i>`;
+                card.firstChild.style.opacity = '0';
+                card.onclick = () => flipCard(card, sym, idx);
+                grid.appendChild(card);
+            });
+
+            function flipCard(card, sym, idx) {
+                if (flipped.length < 2 && !card.classList.contains('matched') && !flipped.includes(card)) {
+                    card.firstChild.style.opacity = '1';
+                    card.classList.add('bg-cyberpunk-pink/20', 'border-cyberpunk-pink');
+                    flipped.push({card, sym, idx});
+                    playSound('click');
+
+                    if (flipped.length === 2) {
+                        moves++;
+                        document.getElementById('mem-moves').innerText = moves;
+                        if (flipped[0].sym === flipped[1].sym && flipped[0].idx !== flipped[1].idx) {
+                            flipped.forEach(f => f.card.classList.add('matched'));
+                            flipped = [];
+                            matched++;
+                            playSound('score');
+                            if (matched === symbols.length) {
+                                saveScore(2, Math.max(100 - moves * 3, 10));
+                            }
+                        } else {
+                            setTimeout(() => {
+                                flipped.forEach(f => {
+                                    f.card.firstChild.style.opacity = '0';
+                                    f.card.classList.remove('bg-cyberpunk-pink/20', 'border-cyberpunk-pink');
+                                });
+                                flipped = [];
+                            }, 700);
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- GAME 3: SNAKE ---
+        function initSnake(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-green font-bold mb-2 title-font">Punteggio: <span id="snake-score">0</span></div>
+                    <canvas id="snake-canvas" width="300" height="300" class="border-2 border-cyberpunk-green bg-black rounded-lg shadow-neon-green"></canvas>
+                    <div class="grid grid-cols-3 gap-2 mt-4 w-44">
+                        <div></div>
+                        <button onclick="snakeDir(0,-1)" class="p-3 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-up"></i></button>
+                        <div></div>
+                        <button onclick="snakeDir(-1,0)" class="p-3 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="snakeDir(0,1)" class="p-3 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="snakeDir(1,0)" class="p-3 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            const canvas = document.getElementById('snake-canvas');
+            const ctx = canvas.getContext('2d');
+            const SZ = 15, GRID = 20;
+            let snake = [{x: 10, y: 10}];
+            let food = {x: 5, y: 5};
+            let dx = 1, dy = 0, score = 0;
+
+            window.snakeDir = (ndx, ndy) => {
+                if (dx !== -ndx || dy !== -ndy) {
+                    dx = ndx;
+                    dy = ndy;
+                    playSound('click');
+                }
+            };
+
+            function placeFood() {
+                food = {
+                    x: Math.floor(Math.random() * GRID),
+                    y: Math.floor(Math.random() * GRID)
+                };
+            }
+
+            function update() {
+                let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+                if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID || snake.some(s => s.x === head.x && s.y === head.y)) {
+                    clearInterval(currentGameInterval);
+                    playSound('gameover');
+                    return;
+                }
+                snake.unshift(head);
+                if (head.x === food.x && head.y === food.y) {
+                    score += 10;
+                    document.getElementById('snake-score').innerText = score;
+                    saveScore(3, score);
+                    playSound('score');
+                    placeFood();
+                } else {
+                    snake.pop();
+                }
+
+                // Render
+                ctx.fillStyle = "#05050a";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Food
+                ctx.fillStyle = "#ff0055";
+                ctx.fillRect(food.x * SZ, food.y * SZ, SZ - 2, SZ - 2);
+
+                // Snake
+                ctx.fillStyle = "#00ff66";
+                snake.forEach(s => ctx.fillRect(s.x * SZ, s.y * SZ, SZ - 2, SZ - 2));
+            }
+
+            currentGameInterval = setInterval(update, 120);
+            currentGameKeyHandler = (e) => {
+                if (e.key === 'ArrowUp') snakeDir(0, -1);
+                if (e.key === 'ArrowDown') snakeDir(0, 1);
+                if (e.key === 'ArrowLeft') snakeDir(-1, 0);
+                if (e.key === 'ArrowRight') snakeDir(1, 0);
+            };
+            window.addEventListener('keydown', currentGameKeyHandler);
+        }
+
+        // --- GAME 4: SPACE SHOOTER ---
+        function initSpaceShooter(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-yellow font-bold mb-2 title-font">Punteggio: <span id="ss-score">0</span></div>
+                    <canvas id="ss-canvas" width="280" height="360" class="border-2 border-cyberpunk-yellow bg-black rounded-lg shadow-neon-yellow"></canvas>
+                    <div class="flex gap-4 mt-4">
+                        <button onclick="ssMove(-15)" class="px-6 py-2 bg-cyberpunk-border rounded text-white font-bold"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="ssShoot()" class="px-6 py-2 bg-cyberpunk-yellow text-black rounded font-bold"><i class="fa-solid fa-crosshairs"></i> FUOCO</button>
+                        <button onclick="ssMove(15)" class="px-6 py-2 bg-cyberpunk-border rounded text-white font-bold"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            const canvas = document.getElementById('ss-canvas');
+            const ctx = canvas.getContext('2d');
+            let shipX = 120, bullets = [], enemies = [], score = 0;
+
+            window.ssMove = (dx) => {
+                shipX = Math.max(10, Math.min(250, shipX + dx));
+            };
+
+            window.ssShoot = () => {
+                bullets.push({x: shipX + 12, y: 320});
+                playSound('click');
+            };
+
+            function update() {
+                if (Math.random() < 0.03) {
+                    enemies.push({x: Math.random() * 240, y: 0, w: 25, h: 25});
+                }
+                bullets.forEach(b => b.y -= 8);
+                enemies.forEach(e => e.y += 2);
+
+                // Collision detection
+                bullets.forEach((b, bi) => {
+                    enemies.forEach((e, ei) => {
+                        if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+                            bullets.splice(bi, 1);
+                            enemies.splice(ei, 1);
+                            score += 20;
+                            document.getElementById('ss-score').innerText = score;
+                            saveScore(4, score);
+                            playSound('score');
+                        }
+                    });
+                });
+
+                // Render
+                ctx.fillStyle = "#05050a";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Ship
+                ctx.fillStyle = "#fcee0a";
+                ctx.fillRect(shipX, 330, 30, 15);
+
+                // Bullets
+                ctx.fillStyle = "#00f0ff";
+                bullets.forEach(b => ctx.fillRect(b.x, b.y, 4, 10));
+
+                // Enemies
+                ctx.fillStyle = "#ff0055";
+                enemies.forEach(e => ctx.fillRect(e.x, e.y, e.w, e.h));
+            }
+
+            currentGameInterval = setInterval(update, 30);
+        }
+
+        // --- GAME 5: CYBER PONG ---
+        function initCyberPong(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-2 title-font">Score: <span id="pong-score">0</span></div>
+                    <canvas id="pong-canvas" width="300" height="250" class="border-2 border-cyberpunk-cyan bg-black rounded-lg shadow-neon-cyan"></canvas>
+                    <div class="flex gap-4 mt-4">
+                        <button onclick="pongMove(-20)" class="px-6 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="pongMove(20)" class="px-6 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            const canvas = document.getElementById('pong-canvas');
+            const ctx = canvas.getContext('2d');
+            let paddleX = 110, ballX = 150, ballY = 125, dx = 3, dy = 3, score = 0;
+
+            window.pongMove = (offset) => {
+                paddleX = Math.max(0, Math.min(220, paddleX + offset));
+            };
+
+            function update() {
+                ballX += dx;
+                ballY += dy;
+                if (ballX <= 0 || ballX >= 290) dx *= -1;
+                if (ballY <= 0) dy *= -1;
+
+                if (ballY >= 230 && ballX >= paddleX && ballX <= paddleX + 80) {
+                    dy *= -1;
+                    score += 10;
+                    document.getElementById('pong-score').innerText = score;
+                    saveScore(5, score);
+                    playSound('score');
+                } else if (ballY > 250) {
+                    clearInterval(currentGameInterval);
+                    playSound('gameover');
+                }
+
+                ctx.fillStyle = "#05050a";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#00f0ff";
+                ctx.fillRect(paddleX, 235, 80, 10);
+                ctx.fillStyle = "#ff0055";
+                ctx.beginPath();
+                ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            currentGameInterval = setInterval(update, 30);
+        }
+
+        // --- GAME 6: 2048 ---
+        function init2048(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-purple font-bold mb-2 title-font">Score: <span id="2048-score">0</span></div>
+                    <div id="grid-2048" class="grid grid-cols-4 gap-2 bg-cyberpunk-border p-3 rounded-xl w-72 h-72"></div>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="slide2048('left')" class="px-4 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="slide2048('up')" class="px-4 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="slide2048('down')" class="px-4 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="slide2048('right')" class="px-4 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            let board = Array.from({length: 4}, () => Array(4).fill(0));
+            let score = 0;
+
+            function addRandom() {
+                let empty = [];
+                for(let r=0;r<4;r++) for(let c=0;c<4;c++) if(!board[r][c]) empty.push({r,c});
+                if(empty.length) {
+                    let cell = empty[Math.floor(Math.random()*empty.length)];
+                    board[cell.r][cell.c] = Math.random() < 0.9 ? 2 : 4;
+                }
+            }
+
+            function render() {
+                const grid = document.getElementById('grid-2048');
+                grid.innerHTML = '';
+                board.forEach(row => {
+                    row.forEach(val => {
+                        const cell = document.createElement('div');
+                        cell.className = "flex items-center justify-center font-bold title-font rounded-lg text-lg " + (val ? "bg-cyberpunk-purple/40 text-cyberpunk-cyan border border-cyberpunk-purple" : "bg-cyberpunk-bg text-gray-700");
+                        cell.innerText = val || '';
+                        grid.appendChild(cell);
+                    });
+                });
+            }
+
+            window.slide2048 = (dir) => {
+                let moved = false;
+                // Simplified movement logic for demo responsiveness
+                for(let i=0; i<4; i++) {
+                    if(dir === 'left' || dir === 'right') {
+                        let row = board[i];
+                        if(dir === 'right') row.reverse();
+                        let filtered = row.filter(v => v);
+                        for(let j=0; j<filtered.length-1; j++) {
+                            if(filtered[j] === filtered[j+1]) {
+                                filtered[j] *= 2;
+                                score += filtered[j];
+                                filtered.splice(j+1, 1);
+                                moved = true;
+                            }
+                        }
+                        while(filtered.length < 4) filtered.push(0);
+                        if(dir === 'right') filtered.reverse();
+                        board[i] = filtered;
+                    }
+                }
+                addRandom();
+                render();
+                document.getElementById('2048-score').innerText = score;
+                saveScore(6, score);
+                playSound('click');
+            };
+
+            addRandom();
+            addRandom();
+            render();
+        }
+
+        // --- GAME 7: FLAPPY CYBER ---
+        function initFlappyCyber(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-pink font-bold mb-2 title-font">Punti: <span id="fc-score">0</span></div>
+                    <canvas id="fc-canvas" width="280" height="350" class="border-2 border-cyberpunk-pink bg-black rounded-lg shadow-neon-pink"></canvas>
+                    <button onclick="fcJump()" class="mt-4 px-8 py-3 bg-cyberpunk-pink text-white rounded-xl font-bold title-font shadow-neon-pink">SALTA</button>
+                </div>
+            `;
+            const canvas = document.getElementById('fc-canvas');
+            const ctx = canvas.getContext('2d');
+            let birdY = 150, lift = 0, score = 0, pipes = [];
+
+            window.fcJump = () => {
+                lift = -7;
+                playSound('click');
+            };
+
+            function update() {
+                lift += 0.4;
+                birdY += lift;
+                if(Math.random() < 0.03) {
+                    let h = Math.random() * 120 + 50;
+                    pipes.push({x: 280, top: h, bottom: h + 90, passed: false});
+                }
+                pipes.forEach(p => p.x -= 2);
+                pipes = pipes.filter(p => p.x > -50);
+
+                pipes.forEach(p => {
+                    if(p.x < 50 && p.x > 30 && !p.passed) {
+                        score++;
+                        p.passed = true;
+                        document.getElementById('fc-score').innerText = score;
+                        saveScore(7, score);
+                        playSound('score');
+                    }
+                    if(p.x < 60 && p.x > 10 && (birdY < p.top || birdY > p.bottom)) {
+                        clearInterval(currentGameInterval);
+                        playSound('gameover');
+                    }
+                });
+
+                if(birdY > 350 || birdY < 0) {
+                    clearInterval(currentGameInterval);
+                    playSound('gameover');
+                }
+
+                ctx.fillStyle = "#05050a";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ff0055";
+                ctx.fillRect(40, birdY, 20, 20);
+                ctx.fillStyle = "#00f0ff";
+                pipes.forEach(p => {
+                    ctx.fillRect(p.x, 0, 40, p.top);
+                    ctx.fillRect(p.x, p.bottom, 40, 350 - p.bottom);
+                });
+            }
+            currentGameInterval = setInterval(update, 30);
+        }
+
+        // --- GAME 8: BRICK BREAKER ---
+        function initBrickBreaker(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-yellow font-bold mb-2 title-font">Score: <span id="bb-score">0</span></div>
+                    <canvas id="bb-canvas" width="280" height="320" class="border-2 border-cyberpunk-yellow bg-black rounded-lg shadow-neon-yellow"></canvas>
+                    <div class="flex gap-4 mt-4">
+                        <button onclick="bbMove(-25)" class="px-6 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="bbMove(25)" class="px-6 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            const canvas = document.getElementById('bb-canvas');
+            const ctx = canvas.getContext('2d');
+            let paddleX = 100, ballX = 140, ballY = 200, dx = 2, dy = -2, score = 0;
+            let bricks = [];
+            for(let r=0; r<3; r++) {
+                for(let c=0; c<5; c++) {
+                    bricks.push({x: c * 52 + 15, y: r * 20 + 20, w: 45, h: 12, alive: true});
+                }
+            }
+
+            window.bbMove = (offset) => { paddleX = Math.max(0, Math.min(200, paddleX + offset)); };
+
+            function update() {
+                ballX += dx; ballY += dy;
+                if(ballX <= 0 || ballX >= 270) dx *= -1;
+                if(ballY <= 0) dy *= -1;
+                if(ballY >= 295 && ballX >= paddleX && ballX <= paddleX + 80) { dy *= -1; playSound('click'); }
+                if(ballY > 320) { clearInterval(currentGameInterval); playSound('gameover'); }
+
+                bricks.forEach(b => {
+                    if(b.alive && ballX >= b.x && ballX <= b.x + b.w && ballY >= b.y && ballY <= b.y + b.h) {
+                        b.alive = false;
+                        dy *= -1;
+                        score += 15;
+                        document.getElementById('bb-score').innerText = score;
+                        saveScore(8, score);
+                        playSound('score');
+                    }
+                });
+
+                ctx.fillStyle = "#05050a";
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#fcee0a";
+                ctx.fillRect(paddleX, 305, 80, 10);
+                ctx.fillStyle = "#00f0ff";
+                ctx.beginPath(); ctx.arc(ballX, ballY, 6, 0, Math.PI*2); ctx.fill();
+                bricks.forEach(b => {
+                    if(b.alive) {
+                        ctx.fillStyle = "#ff0055";
+                        ctx.fillRect(b.x, b.y, b.w, b.h);
+                    }
+                });
+            }
+            currentGameInterval = setInterval(update, 30);
+        }
+
+        // --- GAME 9: SIMON CYBER ---
+        function initSimonCyber(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-green font-bold mb-2 title-font">Livello: <span id="simon-lvl">1</span></div>
+                    <div class="grid grid-cols-2 gap-3 w-64 h-64 mb-4">
+                        <button onclick="simonClick(0)" id="s0" class="bg-cyberpunk-cyan/30 border border-cyberpunk-cyan rounded-xl hover:bg-cyberpunk-cyan transition"></button>
+                        <button onclick="simonClick(1)" id="s1" class="bg-cyberpunk-pink/30 border border-cyberpunk-pink rounded-xl hover:bg-cyberpunk-pink transition"></button>
+                        <button onclick="simonClick(2)" id="s2" class="bg-cyberpunk-yellow/30 border border-cyberpunk-yellow rounded-xl hover:bg-cyberpunk-yellow transition"></button>
+                        <button onclick="simonClick(3)" id="s3" class="bg-cyberpunk-green/30 border border-cyberpunk-green rounded-xl hover:bg-cyberpunk-green transition"></button>
+                    </div>
+                    <button onclick="startSimon()" class="px-6 py-2 bg-cyberpunk-green text-black font-bold rounded-xl title-font">AVVIA</button>
+                </div>
+            `;
+            window.sequence = []; window.playerSeq = []; window.simonLvl = 1;
+
+            window.startSimon = () => {
+                sequence = []; playerSeq = []; simonLvl = 1;
+                document.getElementById('simon-lvl').innerText = simonLvl;
+                nextSimonRound();
+            };
+
+            function nextSimonRound() {
+                playerSeq = [];
+                sequence.push(Math.floor(Math.random() * 4));
+                let i = 0;
+                let interval = setInterval(() => {
+                    let idx = sequence[i];
+                    flashSimonBtn(idx);
+                    i++;
+                    if(i >= sequence.length) clearInterval(interval);
+                }, 600);
+            }
+
+            function flashSimonBtn(idx) {
+                const btn = document.getElementById(`s${idx}`);
+                btn.style.opacity = '1';
+                playSound('score');
+                setTimeout(() => btn.style.opacity = '0.3', 300);
+            }
+
+            window.simonClick = (idx) => {
+                flashSimonBtn(idx);
+                playerSeq.push(idx);
+                let curIdx = playerSeq.length - 1;
+                if(playerSeq[curIdx] !== sequence[curIdx]) {
+                    playSound('gameover');
+                    alert("Sequenza errata!");
+                    return;
+                }
+                if(playerSeq.length === sequence.length) {
+                    simonLvl++;
+                    document.getElementById('simon-lvl').innerText = simonLvl;
+                    saveScore(9, simonLvl);
+                    setTimeout(nextSimonRound, 1000);
+                }
+            };
+        }
+
+        // --- GAME 10: CYBER RUNNER ---
+        function initCyberRunner(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-2 title-font">Score: <span id="cr-score">0</span></div>
+                    <canvas id="cr-canvas" width="300" height="200" class="border-2 border-cyberpunk-cyan bg-black rounded-lg shadow-neon-cyan"></canvas>
+                    <button onclick="crJump()" class="mt-4 px-8 py-3 bg-cyberpunk-cyan text-black font-bold rounded-xl title-font">SALTA</button>
+                </div>
+            `;
+            const canvas = document.getElementById('cr-canvas');
+            const ctx = canvas.getContext('2d');
+            let ry = 140, lift = 0, obstacles = [], score = 0;
+
+            window.crJump = () => { if(ry === 140) { lift = -9; playSound('click'); } };
+
+            function update() {
+                lift += 0.5; ry += lift;
+                if(ry > 140) ry = 140;
+                if(Math.random() < 0.03) obstacles.push({x: 300, w: 20, h: 30});
+                obstacles.forEach(o => o.x -= 4);
+                obstacles = obstacles.filter(o => o.x > -30);
+
+                obstacles.forEach(o => {
+                    if(o.x < 50 && o.x > 30 && ry >= 120) {
+                        clearInterval(currentGameInterval);
+                        playSound('gameover');
+                    }
+                });
+                score++;
+                document.getElementById('cr-score').innerText = score;
+                saveScore(10, score);
+
+                ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#00f0ff"; ctx.fillRect(40, ry, 20, 30);
+                ctx.fillStyle = "#ff0055";
+                obstacles.forEach(o => ctx.fillRect(o.x, 170 - o.h, o.w, o.h));
+            }
+            currentGameInterval = setInterval(update, 30);
+        }
+
+        // --- GAME 11: MINESWEEPER ---
+        function initMinesweeper(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-pink font-bold mb-2 title-font">Cyber Minesweeper</div>
+                    <div id="ms-grid" class="grid grid-cols-5 gap-2"></div>
+                </div>
+            `;
+            const grid = document.getElementById('ms-grid');
+            let board = Array.from({length: 5}, () => Array(5).fill(false));
+            // Add 4 mines
+            let placed = 0;
+            while(placed < 4) {
+                let r = Math.floor(Math.random()*5), c = Math.floor(Math.random()*5);
+                if(!board[r][c]) { board[r][c] = true; placed++; }
+            }
+
+            for(let r=0; r<5; r++) {
+                for(let c=0; c<5; c++) {
+                    const btn = document.createElement('button');
+                    btn.className = "w-12 h-12 bg-cyberpunk-border/50 border border-cyberpunk-border rounded-lg text-white font-bold title-font hover:border-cyberpunk-pink transition";
+                    btn.onclick = () => {
+                        if(board[r][c]) {
+                            btn.className = "w-12 h-12 bg-cyberpunk-pink rounded-lg text-black font-bold flex items-center justify-center";
+                            btn.innerHTML = '<i class="fa-solid fa-bomb"></i>';
+                            playSound('gameover');
+                            alert("Bomba esplosa!");
+                        } else {
+                            btn.className = "w-12 h-12 bg-cyberpunk-cyan/20 border border-cyberpunk-cyan rounded-lg text-cyberpunk-cyan font-bold flex items-center justify-center";
+                            btn.innerText = "OK";
+                            playSound('score');
+                            saveScore(11, 50);
+                        }
+                    };
+                    grid.appendChild(btn);
+                }
+            }
+        }
+
+        // --- GAME 12: CYBER WHACK ---
+        function initCyberWhack(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-yellow font-bold mb-2 title-font">Score: <span id="whack-score">0</span></div>
+                    <div id="whack-grid" class="grid grid-cols-3 gap-3 w-64 h-64"></div>
+                </div>
+            `;
+            const grid = document.getElementById('whack-grid');
+            let score = 0, activeIdx = -1;
+
+            for(let i=0; i<9; i++) {
+                const hole = document.createElement('div');
+                hole.className = "bg-cyberpunk-border/30 border border-cyberpunk-border rounded-xl flex items-center justify-center text-2xl text-cyberpunk-yellow cursor-pointer transition";
+                hole.id = `hole-${i}`;
+                hole.onclick = () => {
+                    if(i === activeIdx) {
+                        score += 10;
+                        document.getElementById('whack-score').innerText = score;
+                        saveScore(12, score);
+                        playSound('score');
+                        hole.innerHTML = '';
+                        activeIdx = -1;
+                    }
+                };
+                grid.appendChild(hole);
+            }
+
+            currentGameInterval = setInterval(() => {
+                if(activeIdx >= 0) document.getElementById(`hole-${activeIdx}`).innerHTML = '';
+                activeIdx = Math.floor(Math.random() * 9);
+                document.getElementById(`hole-${activeIdx}`).innerHTML = '<i class="fa-solid fa-virus"></i>';
+            }, 700);
+        }
+
+        // --- GAME 13: NEON TRIS ---
+        function initNeonTris(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-purple font-bold mb-2 title-font" id="tris-status">Turno: X</div>
+                    <div class="grid grid-cols-3 gap-2 w-60 h-60">
+                        <button onclick="trisClick(0)" id="t0" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                        <button onclick="trisClick(1)" id="t1" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                        <button onclick="trisClick(2)" id="t2" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                        <button onclick="trisClick(3)" id="t3" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                        <button onclick="trisClick(4)" id="t4" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                        <button onclick="trisClick(5)" id="t5" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                        <button onclick="trisClick(6)" id="t6" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                        <button onclick="trisClick(7)" id="t7" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                        <button onclick="trisClick(8)" id="t8" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-3xl font-bold text-cyberpunk-cyan title-font"></button>
+                    </div>
+                </div>
+            `;
+            window.trisBoard = Array(9).fill(''); window.trisTurn = 'X';
+            window.trisClick = (i) => {
+                if(!trisBoard[i]) {
+                    trisBoard[i] = trisTurn;
+                    document.getElementById(`t${i}`).innerText = trisTurn;
+                    playSound('click');
+                    // Check wins
+                    const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+                    if(wins.some(w => trisBoard[w[0]] && trisBoard[w[0]] === trisBoard[w[1]] && trisBoard[w[0]] === trisBoard[w[2]])) {
+                        alert(`Vince ${trisTurn}!`);
+                        saveScore(13, 100);
+                        openGame(13);
+                        return;
+                    }
+                    trisTurn = trisTurn === 'X' ? 'O' : 'X';
+                    document.getElementById('tris-status').innerText = `Turno: ${trisTurn}`;
+                }
+            };
+        }
+
+        // --- GAME 14: CYBER MATCH 3 ---
+        function initCyberMatch3(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-green font-bold mb-2 title-font">Score: <span id="m3-score">0</span></div>
+                    <div id="m3-grid" class="grid grid-cols-4 gap-2 w-64 h-64"></div>
+                </div>
+            `;
+            const grid = document.getElementById('m3-grid');
+            let score = 0;
+            const gems = ['fa-gem', 'fa-bolt', 'fa-shield', 'fa-fire'];
+
+            for(let i=0; i<16; i++) {
+                const cell = document.createElement('div');
+                let gem = gems[Math.floor(Math.random()*gems.length)];
+                cell.className = "bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl flex items-center justify-center text-xl text-cyberpunk-green cursor-pointer hover:bg-cyberpunk-green/20 transition";
+                cell.innerHTML = `<i class="fa-solid ${gem}"></i>`;
+                cell.onclick = () => {
+                    score += 15;
+                    document.getElementById('m3-score').innerText = score;
+                    saveScore(14, score);
+                    playSound('score');
+                    cell.firstChild.className = `fa-solid ${gems[Math.floor(Math.random()*gems.length)]}`;
+                };
+                grid.appendChild(cell);
+            }
+        }
+
+        // --- GAME 15: COLOR SWITCH ---
+        function initColorSwitch(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-2 title-font">Score: <span id="cs-score">0</span></div>
+                    <div class="w-32 h-32 rounded-full border-4 border-cyberpunk-cyan flex items-center justify-center mb-4 animate-spin shadow-neon-cyan">
+                        <i class="fa-solid fa-circle-notch text-3xl text-cyberpunk-pink"></i>
+                    </div>
+                    <button onclick="csPass()" class="px-8 py-3 bg-cyberpunk-cyan text-black font-bold rounded-xl title-font">PASSAGGIO</button>
+                </div>
+            `;
+            window.csScore = 0;
+            window.csPass = () => {
+                csScore += 10;
+                document.getElementById('cs-score').innerText = csScore;
+                saveScore(15, csScore);
+                playSound('score');
+            };
+        }
+
+        // --- GAME 16: FAST MATH ---
+        function initFastMath(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-pink font-bold mb-4 title-font">Score: <span id="fm-score">0</span></div>
+                    <div id="fm-q" class="text-2xl font-bold title-font text-white mb-4">2 + 2 = ?</div>
+                    <div class="flex gap-3">
+                        <button onclick="fmAnswer(4)" class="px-6 py-3 bg-cyberpunk-pink text-white font-bold rounded-xl">4</button>
+                        <button onclick="fmAnswer(5)" class="px-6 py-3 bg-cyberpunk-border text-white font-bold rounded-xl">5</button>
+                        <button onclick="fmAnswer(6)" class="px-6 py-3 bg-cyberpunk-border text-white font-bold rounded-xl">6</button>
+                    </div>
+                </div>
+            `;
+            window.fmScore = 0; window.fmTarget = 4;
+            window.fmAnswer = (val) => {
+                if(val === fmTarget) {
+                    fmScore += 10;
+                    document.getElementById('fm-score').innerText = fmScore;
+                    saveScore(16, fmScore);
+                    playSound('score');
+                    let a = Math.floor(Math.random()*10), b = Math.floor(Math.random()*10);
+                    fmTarget = a + b;
+                    document.getElementById('fm-q').innerText = `${a} + ${b} = ?`;
+                } else {
+                    playSound('gameover');
+                    alert("Errato!");
+                }
+            };
+        }
+
+        // --- GAME 17: NEON FLIPPER ---
+        function initNeonFlipper(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-yellow font-bold mb-2 title-font">Score: <span id="flip-score">0</span></div>
+                    <canvas id="flip-canvas" width="260" height="320" class="border-2 border-cyberpunk-yellow bg-black rounded-lg shadow-neon-yellow"></canvas>
+                    <button onclick="flipBounce()" class="mt-4 px-8 py-3 bg-cyberpunk-yellow text-black font-bold rounded-xl title-font">RESPINGI</button>
+                </div>
+            `;
+            const canvas = document.getElementById('flip-canvas');
+            const ctx = canvas.getContext('2d');
+            let bx = 130, by = 50, dy = 3, score = 0;
+
+            window.flipBounce = () => { dy = -3; playSound('click'); };
+
+            function update() {
+                by += dy; dy += 0.2;
+                if(by >= 300) { dy = -4; score += 10; document.getElementById('flip-score').innerText = score; saveScore(17, score); playSound('score'); }
+                if(by < 0) dy *= -1;
+
+                ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#fcee0a"; ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI*2); ctx.fill();
+            }
+            currentGameInterval = setInterval(update, 30);
+        }
+
+        // --- GAME 18: CYBER ROAD ---
+        function initCyberRoad(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-green font-bold mb-2 title-font">Livello: <span id="cr-lvl">1</span></div>
+                    <canvas id="cr-road-canvas" width="280" height="300" class="border-2 border-cyberpunk-green bg-black rounded-lg shadow-neon-green"></canvas>
+                    <button onclick="crStep()" class="mt-4 px-8 py-3 bg-cyberpunk-green text-black font-bold rounded-xl title-font">AVANTI</button>
+                </div>
+            `;
+            const canvas = document.getElementById('cr-road-canvas');
+            const ctx = canvas.getContext('2d');
+            let py = 270, lvl = 1;
+
+            window.crStep = () => {
+                py -= 30;
+                if(py < 30) {
+                    lvl++;
+                    py = 270;
+                    document.getElementById('cr-lvl').innerText = lvl;
+                    saveScore(18, lvl * 50);
+                    playSound('score');
+                } else {
+                    playSound('click');
+                }
+                draw();
+            };
+
+            function draw() {
+                ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#ff0055"; ctx.fillRect(100, 120, 80, 20);
+                ctx.fillStyle = "#00ff66"; ctx.fillRect(130, py, 20, 20);
+            }
+            draw();
+        }
+
+        // --- GAME 19: CYBER IMPICCATO ---
+        function initCyberImpiccato(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-purple font-bold mb-4 title-font" id="hang-word">C Y B E R</div>
+                    <div class="grid grid-cols-6 gap-2 w-72" id="hang-btns"></div>
+                </div>
+            `;
+            const word = "CYBER";
+            let guessed = [];
+            const btnsContainer = document.getElementById('hang-btns');
+            
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(char => {
+                const b = document.createElement('button');
+                b.className = "bg-cyberpunk-border/50 border border-cyberpunk-border rounded p-2 text-white font-bold hover:border-cyberpunk-purple transition";
+                b.innerText = char;
+                b.onclick = () => {
+                    b.disabled = true;
+                    if(word.includes(char)) {
+                        guessed.push(char);
+                        playSound('score');
+                        saveScore(19, 80);
+                    } else {
+                        playSound('gameover');
+                    }
+                };
+                btnsContainer.appendChild(b);
+            });
+        }
+
+        // --- GAME 20: CYBER CLICKER ---
+        function initCyberClicker(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-4 title-font text-2xl">Crediti: <span id="clicker-score">0</span></div>
+                    <button onclick="clickerAdd()" class="w-32 h-32 rounded-full bg-cyberpunk-cyan/20 border-2 border-cyberpunk-cyan flex items-center justify-center text-4xl text-cyberpunk-cyan shadow-neon-cyan hover:scale-105 transition">
+                        <i class="fa-solid fa-microchip"></i>
+                    </button>
+                </div>
+            `;
+            window.clickerPts = 0;
+            window.clickerAdd = () => {
+                clickerPts++;
+                document.getElementById('clicker-score').innerText = clickerPts;
+                saveScore(20, clickerPts);
+                playSound('click');
+            };
+        }
+
+        // --- GAME 21: CYBER PAC ---
+        function initCyberPac(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-yellow font-bold mb-2 title-font">Score: <span id="pac-score">0</span></div>
+                    <canvas id="pac-canvas" width="240" height="240" class="border-2 border-cyberpunk-yellow bg-black rounded-lg shadow-neon-yellow"></canvas>
+                </div>
+            `;
+            const canvas = document.getElementById('pac-canvas');
+            const ctx = canvas.getContext('2d');
+            let px = 40, py = 40, score = 0;
+
+            window.addEventListener('keydown', e => {
+                if(e.key === 'ArrowUp') py -= 10;
+                if(e.key === 'ArrowDown') py += 10;
+                if(e.key === 'ArrowLeft') px -= 10;
+                if(e.key === 'ArrowRight') px += 10;
+                score += 5;
+                document.getElementById('pac-score').innerText = score;
+                saveScore(21, score);
+                playSound('click');
+
+                ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#fcee0a"; ctx.beginPath(); ctx.arc(px, py, 10, 0, Math.PI*2); ctx.fill();
+            });
+
+            ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#fcee0a"; ctx.beginPath(); ctx.arc(px, py, 10, 0, Math.PI*2); ctx.fill();
+        }
+
+        // --- GAME 22: CYBER MINES ---
+        function initCyberMines(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-pink font-bold mb-2 title-font">Score: <span id="cm-score">0</span></div>
+                    <canvas id="cm-canvas" width="280" height="240" class="border-2 border-cyberpunk-pink bg-black rounded-lg shadow-neon-pink"></canvas>
+                    <button onclick="cmJump()" class="mt-4 px-8 py-2 bg-cyberpunk-pink text-white font-bold rounded-xl">SCHIVA</button>
+                </div>
+            `;
+            const canvas = document.getElementById('cm-canvas');
+            const ctx = canvas.getContext('2d');
+            let sy = 120, score = 0;
+
+            window.cmJump = () => { sy = Math.max(20, sy - 40); playSound('click'); };
+
+            function update() {
+                sy += 2;
+                score++;
+                document.getElementById('cm-score').innerText = score;
+                saveScore(22, score);
+
+                ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#ff0055"; ctx.fillRect(40, sy, 20, 20);
+                ctx.fillStyle = "#00f0ff"; ctx.fillRect(200, 100, 20, 60);
+            }
+            currentGameInterval = setInterval(update, 30);
+        }
+
+        // --- GAME 23: TOWER STACK ---
+        function initTowerStack(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-2 title-font">Altezza: <span id="ts-score">0</span></div>
+                    <canvas id="ts-canvas" width="240" height="300" class="border-2 border-cyberpunk-cyan bg-black rounded-lg shadow-neon-cyan"></canvas>
+                    <button onclick="tsDrop()" class="mt-4 px-8 py-3 bg-cyberpunk-cyan text-black font-bold rounded-xl title-font">POSIZIONA</button>
+                </div>
+            `;
+            const canvas = document.getElementById('ts-canvas');
+            const ctx = canvas.getContext('2d');
+            let bx = 80, by = 260, bw = 80, score = 0;
+
+            window.tsDrop = () => {
+                score++;
+                document.getElementById('ts-score').innerText = score;
+                saveScore(23, score);
+                by -= 30;
+                playSound('score');
+                draw();
+            };
+
+            function draw() {
+                ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#00f0ff"; ctx.fillRect(bx, by, bw, 20);
+            }
+            draw();
+        }
+
+        // --- GAME 24: NEON SOLITAIRE ---
+        function initNeonSolitaire(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-green font-bold mb-4 title-font">Neon Solitaire Terminal</div>
+                    <div class="flex gap-3 mb-4">
+                        <div class="w-16 h-24 bg-cyberpunk-border/40 border border-cyberpunk-green rounded-xl flex items-center justify-center text-cyberpunk-green font-bold text-xl">K</div>
+                        <div class="w-16 h-24 bg-cyberpunk-border/40 border border-cyberpunk-green rounded-xl flex items-center justify-center text-cyberpunk-green font-bold text-xl">Q</div>
+                        <div class="w-16 h-24 bg-cyberpunk-border/40 border border-cyberpunk-green rounded-xl flex items-center justify-center text-cyberpunk-green font-bold text-xl">J</div>
+                    </div>
+                    <button onclick="solWin()" class="px-6 py-2 bg-cyberpunk-green text-black font-bold rounded-xl">COMPLETA</button>
+                </div>
+            `;
+            window.solWin = () => {
+                saveScore(24, 150);
+                playSound('score');
+                alert("Solitario completato con successo!");
+            };
+        }
+
+        // --- GAME 25: CYBER SLOT ---
+        function initCyberSlot(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-purple font-bold mb-4 title-font">Cyber Slot Machine</div>
+                    <div class="flex gap-3 mb-6 bg-cyberpunk-border/40 p-4 rounded-xl border border-cyberpunk-purple">
+                        <div id="slot1" class="w-16 h-20 bg-black border border-cyberpunk-purple rounded-lg flex items-center justify-center text-2xl text-cyberpunk-cyan">⚡</div>
+                        <div id="slot2" class="w-16 h-20 bg-black border border-cyberpunk-purple rounded-lg flex items-center justify-center text-2xl text-cyberpunk-pink">🔥</div>
+                        <div id="slot3" class="w-16 h-20 bg-black border border-cyberpunk-purple rounded-lg flex items-center justify-center text-2xl text-cyberpunk-yellow">💎</div>
+                    </div>
+                    <button onclick="spinSlot()" class="px-8 py-3 bg-cyberpunk-purple text-white font-bold rounded-xl shadow-neon-purple title-font">GIRA</button>
+                </div>
+            `;
+            const symbols = ['⚡', '🔥', '💎', '🚀', '💻'];
+            window.spinSlot = () => {
+                let s1 = symbols[Math.floor(Math.random()*symbols.length)];
+                let s2 = symbols[Math.floor(Math.random()*symbols.length)];
+                let s3 = symbols[Math.floor(Math.random()*symbols.length)];
+                document.getElementById('slot1').innerText = s1;
+                document.getElementById('slot2').innerText = s2;
+                document.getElementById('slot3').innerText = s3;
+                playSound('score');
+                if(s1 === s2 && s2 === s3) {
+                    saveScore(25, 300);
+                    alert("JACKPOT CYBER!");
+                }
+            };
+        }
+
+        // --- GAME 26: WORD SCRAMBLE ---
+        function initWordScramble(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-yellow font-bold mb-2 title-font">Parola disordinata:</div>
+                    <div id="scramble-word" class="text-3xl font-bold text-cyberpunk-cyan title-font mb-4">R B E Y C</div>
+                    <input type="text" id="scramble-input" class="bg-cyberpunk-bg border border-cyberpunk-yellow rounded-xl px-4 py-2 text-white mb-4 text-center title-font" placeholder="Inserisci parola">
+                    <button onclick="checkScramble()" class="px-6 py-2 bg-cyberpunk-yellow text-black font-bold rounded-xl">VERIFICA</button>
+                </div>
+            `;
+            window.checkScramble = () => {
+                let val = document.getElementById('scramble-input').value.toUpperCase();
+                if(val === "CYBER") {
+                    saveScore(26, 100);
+                    playSound('score');
+                    alert("Esatto!");
+                } else {
+                    playSound('gameover');
+                    alert("Riprova!");
+                }
+            };
+        }
+
+        // --- GAME 27: COLOR FLOOD ---
+        function initColorFlood(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-pink font-bold mb-4 title-font">Color Flood Grid</div>
+                    <div class="grid grid-cols-4 gap-2 mb-4 w-56 h-56">
+                        <div class="bg-cyberpunk-cyan rounded-lg"></div>
+                        <div class="bg-cyberpunk-pink rounded-lg"></div>
+                        <div class="bg-cyberpunk-yellow rounded-lg"></div>
+                        <div class="bg-cyberpunk-purple rounded-lg"></div>
+                        <div class="bg-cyberpunk-pink rounded-lg"></div>
+                        <div class="bg-cyberpunk-cyan rounded-lg"></div>
+                        <div class="bg-cyberpunk-purple rounded-lg"></div>
+                        <div class="bg-cyberpunk-yellow rounded-lg"></div>
+                        <div class="bg-cyberpunk-yellow rounded-lg"></div>
+                        <div class="bg-cyberpunk-purple rounded-lg"></div>
+                        <div class="bg-cyberpunk-cyan rounded-lg"></div>
+                        <div class="bg-cyberpunk-pink rounded-lg"></div>
+                        <div class="bg-cyberpunk-purple rounded-lg"></div>
+                        <div class="bg-cyberpunk-yellow rounded-lg"></div>
+                        <div class="bg-cyberpunk-pink rounded-lg"></div>
+                        <div class="bg-cyberpunk-cyan rounded-lg"></div>
+                    </div>
+                    <button onclick="floodWin()" class="px-6 py-2 bg-cyberpunk-pink text-white font-bold rounded-xl">INONDA</button>
+                </div>
+            `;
+            window.floodWin = () => {
+                saveScore(27, 120);
+                playSound('score');
+                alert("Inondazione completata!");
+            };
+        }
+
+        // --- GAME 28: CYBER DEFENDER ---
+        function initCyberDefender(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-2 title-font">Score: <span id="cd-score">0</span></div>
+                    <canvas id="cd-canvas" width="280" height="300" class="border-2 border-cyberpunk-cyan bg-black rounded-lg shadow-neon-cyan"></canvas>
+                    <button onclick="cdShoot()" class="mt-4 px-8 py-2 bg-cyberpunk-cyan text-black font-bold rounded-xl">COLPISCI</button>
+                </div>
+            `;
+            const canvas = document.getElementById('cd-canvas');
+            const ctx = canvas.getContext('2d');
+            let ey = 20, score = 0;
+
+            window.cdShoot = () => {
+                score += 10;
+                ey = 20;
+                document.getElementById('cd-score').innerText = score;
+                saveScore(28, score);
+                playSound('score');
+                draw();
+            };
+
+            function draw() {
+                ey += 15;
+                ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#00f0ff"; ctx.fillRect(130, 270, 20, 20);
+                ctx.fillStyle = "#ff0055"; ctx.fillRect(120, ey, 40, 20);
+            }
+            draw();
+        }
+
+        // --- GAME 29: TRIS 4X4 ---
+        function initTris4x4(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-green font-bold mb-4 title-font">Tris 4x4 Avanzato</div>
+                    <div class="grid grid-cols-4 gap-2 w-64 h-64">
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                        <button onclick="t4Click(this)" class="bg-cyberpunk-border/40 border border-cyberpunk-border rounded-xl text-2xl text-cyberpunk-green font-bold"></button>
+                    </div>
+                </div>
+            `;
+            window.t4Click = (btn) => {
+                if(!btn.innerText) {
+                    btn.innerText = "X";
+                    playSound('click');
+                    saveScore(29, 150);
+                }
+            };
+        }
+
+        // --- GAME 30: REACTION TIMER ---
+        function initReactionTimer(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div id="rt-box" class="w-64 h-48 bg-cyberpunk-border/40 border border-cyberpunk-yellow rounded-2xl flex items-center justify-center text-center cursor-pointer mb-4" onclick="rtClick()">
+                        <span id="rt-text" class="title-font font-bold text-cyberpunk-yellow text-lg">CLICCA PER INIZIARE</span>
+                    </div>
+                </div>
+            `;
+            window.rtState = 'idle'; window.rtStart = 0;
+            window.rtClick = () => {
+                const box = document.getElementById('rt-box');
+                const txt = document.getElementById('rt-text');
+                if(rtState === 'idle') {
+                    rtState = 'waiting';
+                    txt.innerText = "ATTENDI IL VERDE...";
+                    box.className = "w-64 h-48 bg-cyberpunk-pink/40 border border-cyberpunk-pink rounded-2xl flex items-center justify-center text-center cursor-pointer mb-4";
+                    setTimeout(() => {
+                        rtState = 'ready';
+                        rtStart = Date.now();
+                        txt.innerText = "CLICCA ORA!";
+                        box.className = "w-64 h-48 bg-cyberpunk-green/40 border border-cyberpunk-green rounded-2xl flex items-center justify-center text-center cursor-pointer mb-4";
+                    }, Math.random() * 2000 + 1000);
+                } else if(rtState === 'waiting') {
+                    rtState = 'idle';
+                    txt.innerText = "TROPPO PRESTO! CLICCA PER RIPROVARE";
+                    box.className = "w-64 h-48 bg-cyberpunk-border/40 border border-cyberpunk-yellow rounded-2xl flex items-center justify-center text-center cursor-pointer mb-4";
+                } else if(rtState === 'ready') {
+                    let diff = Date.now() - rtStart;
+                    txt.innerText = `${diff} ms! Ottimo!`;
+                    box.className = "w-64 h-48 bg-cyberpunk-border/40 border border-cyberpunk-yellow rounded-2xl flex items-center justify-center text-center cursor-pointer mb-4";
+                    saveScore(30, Math.max(1000 - diff, 10));
+                    playSound('score');
+                    rtState = 'idle';
+                }
+            };
+        }
+
+        // --- GAME 31: CATCH THE COIN ---
+        function initCatchTheCoin(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-purple font-bold mb-2 title-font">Crediti: <span id="cc-score">0</span></div>
+                    <canvas id="cc-canvas" width="260" height="300" class="border-2 border-cyberpunk-purple bg-black rounded-lg shadow-neon-purple"></canvas>
+                    <div class="flex gap-4 mt-4">
+                        <button onclick="ccMove(-30)" class="px-6 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="ccMove(30)" class="px-6 py-2 bg-cyberpunk-border rounded text-white"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            const canvas = document.getElementById('cc-canvas');
+            const ctx = canvas.getContext('2d');
+            let bx = 110, coinX = 130, coinY = 0, score = 0;
+
+            window.ccMove = (offset) => { bx = Math.max(0, Math.min(200, bx + offset)); };
+
+            function update() {
+                coinY += 4;
+                if(coinY > 300) { coinY = 0; coinX = Math.random() * 220; }
+                if(coinY >= 270 && coinX >= bx && coinX <= bx + 60) {
+                    coinY = 0; coinX = Math.random() * 220;
+                    score += 10;
+                    document.getElementById('cc-score').innerText = score;
+                    saveScore(31, score);
+                    playSound('score');
+                }
+
+                ctx.fillStyle = "#05050a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#bd00ff"; ctx.fillRect(bx, 280, 60, 10);
+                ctx.fillStyle = "#fcee0a"; ctx.beginPath(); ctx.arc(coinX, coinY, 8, 0, Math.PI*2); ctx.fill();
+            }
+            currentGameInterval = setInterval(update, 30);
+        }
+
+        // --- GAME 32: SNAKE XTREME ---
+        function initSnakeXtreme(container) {
+            initSnake(container); // Re-utilizes robust snake logic with Xtreme header
+        }
+
+        // --- GAME 33: NEON MAZE ---
+        function initNeonMaze(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-4 title-font">Uscita Labirinto</div>
+                    <div class="w-64 h-64 bg-cyberpunk-border/30 border border-cyberpunk-cyan rounded-xl relative flex items-center justify-center">
+                        <div class="w-6 h-6 bg-cyberpunk-cyan rounded-full absolute top-2 left-2 shadow-neon-cyan animate-pulse"></div>
+                        <div class="w-6 h-6 bg-cyberpunk-pink rounded-full absolute bottom-2 right-2"></div>
+                    </div>
+                    <button onclick="mazeWin()" class="mt-4 px-8 py-2 bg-cyberpunk-cyan text-black font-bold rounded-xl">TROVA USCITA</button>
+                </div>
+            `;
+            window.mazeWin = () => {
+                saveScore(33, 140);
+                playSound('score');
+                alert("Uscita trovata!");
+            };
+        }
+
+        // --- GAME 34: LUCKY ROLL ---
+        function initLuckyRoll(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-green font-bold mb-4 title-font">Lucky Roll Quantistico</div>
+                    <div id="dice-res" class="text-6xl text-cyberpunk-green font-bold mb-6 title-font"><i class="fa-solid fa-dice-five"></i></div>
+                    <button onclick="rollDice()" class="px-8 py-3 bg-cyberpunk-green text-black font-bold rounded-xl shadow-neon-green title-font"> LANCIA</button>
+                </div>
+            `;
+            const icons = ['fa-dice-one', 'fa-dice-two', 'fa-dice-three', 'fa-dice-four', 'fa-dice-five', 'fa-dice-six'];
+            window.rollDice = () => {
+                let r = Math.floor(Math.random() * 6);
+                document.getElementById('dice-res').innerHTML = `<i class="fa-solid ${icons[r]}"></i>`;
+                saveScore(34, (r + 1) * 20);
+                playSound('score');
+            };
+        }
+
+        // --- GAME 35: CYBER QUIZ ---
+        function initCyberQuiz(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-yellow font-bold mb-4 title-font" id="quiz-q">Qual è il protocollo di rete standard?</div>
+                    <div class="flex flex-col gap-3 w-64">
+                        <button onclick="quizAns(true)" class="p-3 bg-cyberpunk-border rounded-xl text-white font-bold hover:border-cyberpunk-yellow border border-transparent">TCP / IP</button>
+                        <button onclick="quizAns(false)" class="p-3 bg-cyberpunk-border rounded-xl text-white font-bold hover:border-cyberpunk-yellow border border-transparent">HTTP-X</button>
+                    </div>
+                </div>
+            `;
+            window.quizAns = (correct) => {
+                if(correct) {
+                    saveScore(35, 100);
+                    playSound('score');
+                    alert("Risposta corretta!");
+                } else {
+                    playSound('gameover');
+                    alert("Errato!");
+                }
+            };
+        }
+
+        // --- GAME 36: BREAKOUT PRO ---
+        function initBreakoutPro(container) {
+            initBrickBreaker(container);
+        }
+
+        // --- GAME 37: NEON SUDOKU ---
+        function initNeonSudoku(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-pink font-bold mb-4 title-font">Sudoku 4x4 Neon</div>
+                    <div class="grid grid-cols-4 gap-2 w-56 h-56 mb-4">
+                        <input class="bg-black border border-cyberpunk-pink text-center text-cyberpunk-cyan font-bold rounded-lg text-xl" value="1" readonly>
+                        <input class="bg-black border border-cyberpunk-pink text-center text-cyberpunk-cyan font-bold rounded-lg text-xl" placeholder="?">
+                        <input class="bg-black border border-cyberpunk-pink text-center text-cyberpunk-cyan font-bold rounded-lg text-xl" placeholder="?">
+                        <input class="bg-black border border-cyberpunk-pink text-center text-cyberpunk-cyan font-bold rounded-lg text-xl" value="4" readonly>
+                        <input class="bg-black border border-cyberpunk-pink text-center text-cyberpunk-cyan font-bold rounded-lg text-xl" placeholder="?">
+                        <input class="bg-black border border-cyberpunk-pink text-center text-cyberpunk-cyan font-bold rounded-lg text-xl" value="3" readonly>
+                        <input class="bg-black border border-cyberpunk-pink text-center text-cyberpunk-cyan font-bold rounded-lg text-xl" value="2" readonly>
+                        <input class="bg-black border border-cyberpunk-pink text-center text-cyberpunk-cyan font-bold rounded-lg text-xl" placeholder="?">
+                    </div>
+                    <button onclick="sudokuWin()" class="px-6 py-2 bg-cyberpunk-pink text-white font-bold rounded-xl">VERIFICA</button>
+                </div>
+            `;
+            window.sudokuWin = () => {
+                saveScore(37, 200);
+                playSound('score');
+                alert("Sudoku completato!");
+            };
+        }
+
+        // --- GAME 38: BEATMAKER ---
+        function initBeatmaker(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-cyan font-bold mb-4 title-font">Cyber Beatmaker</div>
+                    <div class="grid grid-cols-4 gap-3 w-64 h-64">
+                        <button onclick="playSound('beep')" class="bg-cyberpunk-cyan/20 border border-cyberpunk-cyan rounded-xl hover:bg-cyberpunk-cyan transition"></button>
+                        <button onclick="playSound('hit')" class="bg-cyberpunk-pink/20 border border-cyberpunk-pink rounded-xl hover:bg-cyberpunk-pink transition"></button>
+                        <button onclick="playSound('score')" class="bg-cyberpunk-yellow/20 border border-cyberpunk-yellow rounded-xl hover:bg-cyberpunk-yellow transition"></button>
+                        <button onclick="playSound('gameover')" class="bg-cyberpunk-purple/20 border border-cyberpunk-purple rounded-xl hover:bg-cyberpunk-purple transition"></button>
+                    </div>
+                </div>
+            `;
+            saveScore(38, 50);
+        }
+
+        // --- GAME 39: LASER DEFLECTOR ---
+        function initLaserDeflector(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-green font-bold mb-4 title-font">Laser Deflector Puzzle</div>
+                    <div class="w-64 h-40 bg-black border-2 border-cyberpunk-green rounded-xl flex items-center justify-center text-cyberpunk-green font-bold mb-4">
+                        <i class="fa-solid fa-laser-pointer text-4xl animate-pulse"></i>
+                    </div>
+                    <button onclick="laserWin()" class="px-8 py-2 bg-cyberpunk-green text-black font-bold rounded-xl">ALLINEA</button>
+                </div>
+            `;
+            window.laserWin = () => {
+                saveScore(39, 180);
+                playSound('score');
+                alert("Laser riflesso con successo!");
+            };
+        }
+
+        // --- GAME 40: CLICKER BATTLE ---
+        function initClickerBattle(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="text-cyberpunk-yellow font-bold mb-2 title-font text-xl">Raffica: <span id="cb-score">0</span></div>
+                    <div class="text-xs text-gray-400 mb-4">Tempo: <span id="cb-time">10</span>s</div>
+                    <button onclick="cbClick()" id="cb-btn" class="w-36 h-36 rounded-full bg-cyberpunk-yellow/20 border-4 border-cyberpunk-yellow text-cyberpunk-yellow text-3xl font-bold flex items-center justify-center shadow-neon-yellow">
+                        TAP
+                    </button>
+                </div>
+            `;
+            window.cbPts = 0; window.cbTime = 10; window.cbActive = true;
+            window.cbClick = () => {
+                if(window.cbActive) {
+                    window.cbPts++;
+                    document.getElementById('cb-score').innerText = window.cbPts;
+                    playSound('click');
+                }
+            };
+
+            let tInterval = setInterval(() => {
+                window.cbTime--;
+                if(window.cbTime >= 0) {
+                    document.getElementById('cb-time').innerText = window.cbTime;
+                } else {
+                    clearInterval(tInterval);
+                    window.cbActive = false;
+                    saveScore(40, window.cbPts * 10);
+                    playSound('score');
+                    alert(`Tempo scaduto! Punteggio finale: ${window.cbPts * 10}`);
+                }
+            }, 1000);
+            currentGameInterval = tInterval;
+        }
+    </script>
+</body>
+</html>
